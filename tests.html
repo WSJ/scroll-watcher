@@ -1,0 +1,270 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>
+            Scrollwatcher tests
+        </title>
+        <link rel="stylesheet" href="http://code.jquery.com/qunit/qunit-1.20.0.css" type="text/css">
+        
+        <style>
+        .stuck{
+          position:fixed;
+          top:0;
+        }
+        
+        .outer, .outer2 {
+            height: 5000px;
+            position: relative;
+            border: 1px solid skyblue;
+        }
+        .inner {
+            font-size: 100px;
+            width: 100%;
+            border: 1px solid pink;
+        }
+        body {
+            padding-bottom: 3000px;
+        }
+        </style>
+    </head>
+    <body>
+
+        <div class="outer">
+            <div class="inner">
+                <div class="text"></div>
+                <div class="meter"></div>        
+            </div>
+        </div>
+
+        
+        <div style="position: fixed; top: 0;">
+            <p>This page contains QUnit tests for <a href="http://github.com/wsj/scroll-watcher/">scrollWatcher</a>.</p>
+
+            <div id="qunit"></div>
+            <div id="qunit-fixture"></div>
+        </div>
+        
+
+        <script src="http://code.jquery.com/jquery-latest.min.js"></script>
+        <script src="https://rawgit.com/bbarakaci/fixto/master/dist/fixto.js"></script>
+        <script src="scroll-watcher.js"></script>
+        
+                
+        <script src="http://code.jquery.com/qunit/qunit-1.20.0.js" type="text/javascript">
+</script>
+        
+        <script>
+QUnit.test( "init without callback", function( assert ) {
+    assert.throws(function(){
+        scrollWatcher({
+            parent: '.outer'
+        });
+    });
+});        
+
+QUnit.test( "init with callback", function( assert ) {
+    var done = assert.async();
+    var sw = scrollWatcher({
+        parent: '.outer',
+        onUpdate: function(){
+            done();
+            sw.stop();
+        }
+    });
+    assert.notEqual( $('.outer').attr('id'), '' );
+});        
+
+QUnit.test( "stop", function( assert ) {
+    var sw = scrollWatcher({
+        parent: '.outer',
+        onUpdate: function(){}
+    });
+    assert.notEqual( $('.outer').attr('id'), '' );
+    sw.stop();
+    assert.equal( $('.outer').attr('id'), '' );
+});        
+
+QUnit.test( "stop", function( assert ) {
+    var done = assert.async();
+    var sw = scrollWatcher({
+        parent: '.outer',
+        onUpdate: function(scroll,$parent){
+            $parent.find('.text').text( scroll.toFixed(10) );
+        }
+    });
+    window.scrollTo(0,5000);
+    setTimeout(function(){
+        assert.equal($('.text').text(), "100.0000000000", 'Is scrolled to 100%');
+        sw.stop();
+        window.scrollTo(0,0);
+        done();
+    },100);
+});        
+
+QUnit.test( "pause", function( assert ) {
+    var done = assert.async();
+    var sw = scrollWatcher({
+        parent: '.outer',
+        onUpdate: function(scroll,$parent){}
+    });
+    setTimeout(function(){
+        assert.notEqual( $('.outer').attr('id'), '' );
+        sw.pause();
+        setTimeout(function(){
+            assert.notEqual( $('.outer').attr('id'), '' );
+            sw.stop();
+            assert.equal( $('.outer').attr('id'), '' );
+            done();
+        },100);
+    },100);
+});        
+
+
+QUnit.test( "Run 100% once only", function( assert ) {
+    var done = assert.async();
+    assert.expect(1);
+    var sw = scrollWatcher({
+        parent: '.outer',
+        onUpdate: function(scroll,$parent){
+            $parent.find('.text').text( scroll.toFixed(5) );
+            assert.ok(true, 'onUpdate runs');
+        }
+    });
+    window.scrollTo(0,10000);
+    setTimeout(function(){
+        sw.stop();
+        window.scrollTo(0,0);
+        done();
+    },1000);
+});        
+
+QUnit.test( "Run 0% once only", function( assert ) {
+    var done = assert.async();
+    assert.expect(2);
+    var sw = scrollWatcher({
+        parent: '.outer',
+        onUpdate: function(scroll,$parent){
+            $parent.find('.text').text( scroll.toFixed(5) );
+        }
+    });
+    window.scrollTo(0,10000);
+    setTimeout(function(){
+        assert.equal($('.text').text(), '100.00000', 'Callback on 100%');
+        window.scrollTo(0,0);
+        setTimeout(function(){
+            assert.equal($('.text').text(), '0.00000', 'Callback on 0%');
+            sw.stop();
+            done();
+        },100);
+    },100);
+});        
+
+
+QUnit.test( "Run 100% once after overshoot", function( assert ) {
+    var done = assert.async();
+    assert.expect(3);
+    
+    var loop = 0;
+    
+    window.scrollTo(0,0);
+    var sw = scrollWatcher({
+        parent: '.outer',
+        onUpdate: function(scroll,$parent){
+            if (loop === 0) {
+                assert.equal(scroll, 0);
+                window.scrollTo(0,200);
+            } else if (loop === 1) {
+                assert.ok((scroll.toFixed(0) > 0) && (scroll.toFixed(0) < 100), 'Between 0 and 100');
+                window.scrollTo(0,10000);                
+            } else if (loop >= 2) {
+                assert.equal(scroll, 100);
+            }
+            loop++;
+        }
+    });
+    setTimeout(function(){
+        sw.stop();
+        window.scrollTo(0,0);
+        done();
+    },1000);
+});        
+
+
+QUnit.test( "Sticks with tall element", function( assert ) {
+    var done = assert.async();
+    var testDiv = '<div id="testDiv" style="height: '+ ($(window).height() *2)+'px;"></div>';
+    $('.inner').append( testDiv );
+    
+    window.scrollTo(0,200);
+    var loop = 0;
+    var sw = scrollWatcher({
+        parent: '.outer',
+        onUpdate: function( scroll ){
+            window.scrollTo(0,5000);
+            if (loop > 0) {
+                assert.ok( scroll > 0, 'Scroll is greater than 0' );
+                assert.ok( $('.inner').offset().top > 100, 'Inner is stuck');
+                sw.stop();
+                $('#testDiv').remove();
+                window.scrollTo(0,0);
+                done();
+            }
+            loop += 1;
+        }
+    });
+});        
+
+
+QUnit.test( "Active is correct", function( assert ) {
+    var done = assert.async();
+    assert.expect(3);
+    var sw = scrollWatcher({
+        parent: '.outer',
+        onUpdate: function(scroll,$parent){
+            // nada
+        }
+    });
+    assert.ok(!sw.active);
+    window.scrollTo(0,1000);
+    setTimeout(function(){
+        assert.ok(sw.active);
+        window.scrollTo(0,0);
+        setTimeout(function(){
+            assert.ok(!sw.active);
+            sw.stop();
+            done();
+        },100);
+    },100);
+});        
+
+
+QUnit.test( "hasBeenActive is correct", function( assert ) {
+    var done = assert.async();
+    assert.expect(3);
+    var sw = scrollWatcher({
+        parent: '.outer',
+        onUpdate: function(scroll,$parent){
+            // nada
+        }
+    });
+    assert.ok(!sw.hasBeenActive);
+    window.scrollTo(0,1000);
+    setTimeout(function(){
+        assert.ok(sw.hasBeenActive);
+        window.scrollTo(0,0);
+        setTimeout(function(){
+            assert.ok(sw.hasBeenActive);
+            sw.stop();
+            done();
+        },100);
+    },100);
+});        
+
+
+
+        
+        </script>
+        
+    </body>
+</html>

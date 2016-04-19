@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <meta charset="utf-8">
+
+        <title>scrollWatcher</title>
+        <meta name="title" content="scrollWatcher" />
+        <meta property="og:title" content="scrollWatcher" />
+        <meta name="twitter:title" content="scrollWatcher" />
+
+		<meta name="description" content="JS library for navigating data using scroll, from The Wall Street Journal.">
+        <meta property="og:description" content="JS library for navigating data using scroll, from The Wall Street Journal." />
+		<meta name="twitter:description" content="JS library for navigating data using scroll, from The Wall Street Journal.">
+    
+		<link rel="canonical" href="http://wsj.github.io/scroll-watcher/">
+		<meta property="og:url" content="http://wsj.github.io/scroll-watcher/">
+
+        <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
+
+        <style>
+        /* Needed for scrollWatcher to work */
+        .outer, .outer2 {
+            height: 2000px;
+            position: relative;
+            border: 1px solid skyblue;
+        }
+        .inner {
+            font-size: 100px;
+            width: 100%;
+            border: 1px solid pink;
+        }
+        .meter {
+            height: 20px;
+            width: 0;
+            background: blue;
+            margin: 20px 0;
+        }
+        .stuck{
+          position:fixed;
+          top:0;
+        }
+        
+        /* Page styling */
+        h2 {
+            font-size: 20px;
+        }
+        .subhead {
+            font-size: 130%;
+            font-weight: 500;
+            color: #777;
+        }
+        .main-body {
+            background: rgb(240, 247, 247);
+            padding: 24px 26px 22px 26px;
+            max-width: 600px;
+            font-size: 16px;
+            margin: 30px auto;
+        }
+        footer {
+            padding: 20px 0;
+        }
+        .github-link {
+            margin-top: 10px;
+        }
+
+        </style>
+    </head>
+    <body>
+        
+        <div class="container">
+        
+            <header>
+        
+                <h1>scrollWatcher</h1>
+                <p class="subhead">A JavaScript library for navigating data using scroll, by <em>The Wall Street Journal</em>.</p>
+            </header>
+        
+            <div class="main-body">
+                
+                <p><a href="http://github.com/wsj/scroll-watcher/"><strong>scrollWatcher</strong></a> is a small library for scroll-based data-driven graphics (without any nasty <a href="http://blog.arronhunt.com/post/66973746030/stop-scrolljacking">scrolljacking</a>). It sticks an element at a fixed position onscreen, and then provides the distance scrolled through its (much taller) parent as a percentage.</p>
+
+                <p>As seen on WSJ.com in <a href="http://graphics.wsj.com/reacting-to-fed-rates/">How Fed Rates Move Markets</a> and <a href="http://graphics.wsj.com/what-ecb-qe-stimulus-has-done/">What ECB Stimulus Has Done</a>. Or scroll down for a live example.</p>
+                                
+                <a class="github-link btn btn-default" role="button" href="http://github.com/wsj/scroll-watcher/">View on GitHub</a>
+                
+                
+            </div>
+
+            <h2>Live demo - scroll to see how scrollWatcher works</h2>
+
+            <div class="outer">
+                <div class="inner">
+                    <div class="text"></div>
+                    <div class="meter"></div>        
+                </div>
+            </div>
+            
+            <footer>
+                
+                <p>All code released under the <a href="http://opensource.org/licenses/MIT">MIT license</a>. Pull requests welcomed.</p>
+                <p>Developed at <em>The Wall Street Journal</em> by Elliot Bentley.</p>
+                
+            </footer>
+            
+        </div><!-- .container -->
+    
+
+
+        <script src="https://code.jquery.com/jquery-latest.min.js"></script>
+        <script src="https://rawgit.com/bbarakaci/fixto/master/dist/fixto.min.js"></script>
+        <script src="scroll-watcher.js"></script>
+        
+        <script type="text/javascript">
+        
+        $(function(){
+            
+            var onUpdate = function( scroll, $parent ){
+                $parent.find('.text').text( scroll.toFixed(2) );
+                $parent.find('.meter').width( scroll + '%' );
+            }
+        
+            scrollWatcher({
+                onUpdate: onUpdate,
+                parent: '.outer'
+            });
+        
+        });
+        
+        
+        </script>
+        
+    </body>
+</html>

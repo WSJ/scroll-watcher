@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<style>
+.outer, .outer2 {
+    height: 2000px;
+    position: relative;
+    border: 1px solid skyblue;
+}
+.inner {
+    font-size: 100px;
+    width: 100%;
+    border: 1px solid pink;
+}
+.meter {
+    height: 20px;
+    width: 0;
+    background: blue;
+    margin: 20px 0;
+}
+.stuck{
+  position:fixed;
+  top:0;
+}
+
+.tall-element {
+    /* pattern from here: http://lea.verou.me/css3patterns/#marrakesh */
+    background-color:white;
+    background-image:
+    radial-gradient(midnightblue 9px, transparent 10px),        
+    repeating-radial-gradient(midnightblue 0, midnightblue 4px, transparent 5px, transparent 20px, midnightblue 21px, midnightblue 25px, transparent 26px, transparent 50px);    
+    background-size: 30px 30px, 90px 90px; 
+    background-position: 0 0;
+    opacity: 0.5;
+}
+
+</style>
+
+<p>This is a demo page for <a href="http://github.com/wsj/scroll-watcher/">scrollWatcher</a>.</p>
+<p>In this example, the child element is taller than the screen height, but still sticks in the container. It's a rare case, but can occur (for example) on smartphones.</p>
+
+<div class="outer">
+    <div class="inner">
+        <div class="text"></div>
+        <div class="meter"></div>
+        <div class="tall-element"></div>      
+    </div>
+</div>
+
+<div class="outer2">
+    <div class="inner">
+        <div class="text"></div>
+        <div class="meter"></div>
+        <div class="tall-element"></div>      
+    </div>
+</div>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.11/d3.min.js"></script>
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<script src="https://rawgit.com/bbarakaci/fixto/master/dist/fixto.min.js"></script>
+<script src="../scroll-watcher.js"></script>
+
+<script type="text/javascript">
+
+var onUpdate = function( scroll, $parent ){
+    $parent.find('.meter').width( scroll + '%' );
+}
+
+scrollWatcher({
+    onUpdate: onUpdate,
+    parent: '.outer'
+});
+
+// set our tall element to be taller than the screen
+setInterval(function(){
+    $('.tall-element').css('height', $(window).height() + 100 );
+},100);
+
+</script>

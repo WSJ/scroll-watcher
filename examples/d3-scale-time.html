@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<style>
+.outer, .outer2 {
+    height: 2000px;
+    position: relative;
+    border: 1px solid skyblue;
+}
+.inner {
+    font-size: 100px;
+    width: 100%;
+    border: 1px solid pink;
+}
+.meter {
+    height: 20px;
+    width: 0;
+    background: blue;
+    margin: 20px 0;
+}
+.stuck{
+  position:fixed;
+  top:0;
+}
+
+
+</style>
+
+<p>This is a demo page for <a href="http://github.com/wsj/scroll-watcher/">scrollWatcher</a>.</p>
+<p>In this example, we are using D3 to convert between the percentage-scrolled and a time scale.</p>
+<p>So instead of going from 0 to 100, it goes from Jan. 1 to Dec. 31.</p>
+
+
+<div class="outer">
+    <div class="inner">
+        <div class="text"></div>
+        <div class="meter"></div>        
+    </div>
+</div>
+
+<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.11/d3.min.js"></script>
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<script src="https://rawgit.com/bbarakaci/fixto/master/dist/fixto.min.js"></script>
+<script src="../scroll-watcher.js"></script>
+
+<script type="text/javascript">
+
+// create a normal D3 time parser 
+var dateFormat = d3.time.format("%Y-%m-%d");
+
+// create date objects for our start and end
+var dateRange = [
+    dateFormat.parse('2015-01-01'),
+    dateFormat.parse('2015-12-31')
+];
+
+// create D3 time scale using dateRange
+var scale = d3.time.scale()
+    .domain([0,100])
+    .range(dateRange);
+
+var onUpdate = function( scroll, $parent ){
+    // map the percentage scrolled to our time scale
+    var scaled = scale(scroll);
+    // format it as a human-readable date
+    var formatted = dateFormat(new Date(scaled));
+    $parent.find('.text').text( formatted );
+    $parent.find('.meter').width( scroll + '%' );
+}
+
+scrollWatcher({
+    onUpdate: onUpdate,
+    parent: '.outer'
+});
+
+</script>

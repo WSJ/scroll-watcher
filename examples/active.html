@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<style>
+.outer, .outer2 {
+    height: 2000px;
+    position: relative;
+    border: 1px solid skyblue;
+}
+.inner {
+    font-size: 100px;
+    width: 100%;
+    border: 1px solid pink;
+}
+.meter {
+    height: 20px;
+    width: 0;
+    background: blue;
+    margin: 20px 0;
+}
+.stuck{
+  position:fixed;
+  top:0;
+}
+
+.scroll-status {
+    position: fixed;
+    top: 30%;
+    right: 0;
+    background: #eee;
+    border: 1px solid black;
+    padding: 10px;
+    font-size: 30px;
+}
+
+.status2 {
+    top: 40%;
+    background-color: #D9B4B5;
+    font-size: 20px;
+}
+
+.status3 {
+    top: 45%;
+    background-color: #D9B4B5;
+    font-size: 20px;
+}
+
+.scroll-status.true {
+    background-color: #CCE4D5;
+}
+
+
+.spacer {
+    height: 800px;
+    background: #f9f9f9;
+}
+
+</style>
+
+<p>This is a demo page for <a href="http://github.com/wsj/scroll-watcher/">scrollWatcher</a>.</p>
+
+<p>This shows how to use the active and hasBeenActive features of scrollWatcher.
+    
+<div class="spacer"></div>
+
+<div class="outer">
+    <div class="inner">
+        <div class="text"></div>
+        <div class="meter"></div>        
+    </div>
+</div>
+
+<div class="scroll-status status1">
+    Loading...
+</div>
+<div class="scroll-status status2">
+    Loading...
+</div>
+<div class="scroll-status status3">
+    Loading...
+</div>
+
+<script src="https://code.jquery.com/jquery-latest.min.js"></script>
+<script src="https://rawgit.com/bbarakaci/fixto/master/dist/fixto.min.js"></script>
+<script src="../scroll-watcher.js"></script>
+
+<script type="text/javascript">
+
+var onUpdate = function( scroll, $parent ){
+    $parent.find('.text').text( scroll.toFixed(2) );
+    $parent.find('.meter').width( scroll + '%' );
+    
+    // user-friendly message
+    if ( myWatcher.hasBeenActive ) {
+        $('.status1').text('Cool, you know what to do now.')
+    } else {
+        $('.status1').text('Hey user, try scrolling.')
+    }
+    
+    // debug to show how the variables work
+    if ( myWatcher.hasBeenActive ) {
+        $('.status2').addClass('true').text('hasBeenActive is true')
+    } else {
+        $('.status2').removeClass('true').text('hasBeenActive is false')
+    }
+    if ( myWatcher.active ) {
+        $('.status3').addClass('true').text('active is true')
+    } else {
+        $('.status3').removeClass('true').text('active is false')
+    }
+}
+
+var myWatcher = scrollWatcher({
+    onUpdate: onUpdate,
+    parent: '.outer'
+});
+
+</script>
