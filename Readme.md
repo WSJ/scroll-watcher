@@ -21,7 +21,7 @@ As seen on WSJ.com in [How Fed Rates Move Markets](http://graphics.wsj.com/react
 2. In your HTML, you'll need a tall outer element, with one much shorter element inside of it.
 
     ```html
-    <div class="outer" style="height: 2000px;"></div>
+    <div class="outer" style="height: 2000px;">
         <div class="inner"></div>
     </div>
     ```
