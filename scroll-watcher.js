@@ -4,7 +4,7 @@ Developed by Elliot Bentley for The Wall Street Journal
 Released under the ISC license
 */
 function scrollWatcher(opts){
-    var interval;
+    var isRunning = false;
     var $outer = $(opts.parent);
     var $inner = $(opts.parent).children().eq(0);
     var that = {
@@ -38,7 +38,7 @@ function scrollWatcher(opts){
         if (!scrollPosMaxOrMore) {
             // 'active' property is for external API
             that.active = true;
-            that.hasBeenActive = true;            
+            that.hasBeenActive = true;
             maxedOut = false;
         }
         if (!maxedOut) {
@@ -105,17 +105,17 @@ function scrollWatcher(opts){
         }
         previousInnerHeight = newInnerHeight;
     }
-        
+
     // stop checking and unstick
     that.stop = function(){
-        clearInterval( interval );
+        that.pause();
         $outer.attr('id','');
         $inner.fixTo('destroy');
         return this;
     };
     // stop checking but keep stuck
     that.pause = function(){
-        clearInterval( interval );
+        isRunning = false;
         return this;
     };
     // starts watching for scroll movement
@@ -123,7 +123,14 @@ function scrollWatcher(opts){
         // sticky stuff
         $outer.attr('id',outerId);
         $inner.fixTo('#'+outerId);
-        interval = setInterval(onTick,20);
+        var fn = function() {
+          if (isRunning === true) {
+            onTick();
+            window.requestAnimationFrame(fn);
+          }
+        }
+        isRunning = true;
+        window.requestAnimationFrame(fn);
         return this;
     }
     // could be a useful alias
